@@ -1,0 +1,4 @@
+UFG_393202_P004_WE01 2 Dryopteris intermedia
+UFG_393202_P010_WD12 2 Dryopteris expansa
+UFG_393202_P004_WA01 4 Dryopteris campyloptera
+UFG_393202_P050_WA01 2 Polystichum munitum
