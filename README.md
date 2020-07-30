@@ -19,7 +19,7 @@
 Fastq files follow the following naming rules:
 * Only paired-end data allowed
 * Reads should be named as
-	+ &ltIndividual ID&gt.R1.&ltFastq File Extension&gt
+	+ &lt; Individual ID &gt;.R1.&lt;Fastq File Extension&gt;
 	+ &ltIndividual ID&gt.R2.&ltFastq File Extention%gt
 	+ where <Individual ID> = The individual name specified in the ploidy file
 	+ and <Fastq File Extension> = Whatever you want; It does not matter if named *.fq, *.fastq, *.fq.gz, etc
