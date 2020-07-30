@@ -19,10 +19,10 @@
 Fastq files follow the following naming rules:
 * Only paired-end data allowed
 * Reads should be named as
-	+ &lt; Individual ID &gt;.R1.&lt;Fastq File Extension&gt;
-	+ &ltIndividual ID&gt.R2.&ltFastq File Extention%gt
-	+ where <Individual ID> = The individual name specified in the ploidy file
-	+ and <Fastq File Extension> = Whatever you want; It does not matter if named *.fq, *.fastq, *.fq.gz, etc
+	+ &lt;Individual ID&gt;.R1.&lt;Fastq File Extension&gt;
+	+ &lt;Individual ID&gt;.R2.&lt;Fastq File Extention&gt;
+	+ where &lt;Individual ID&gt; = The individual name specified in the ploidy file
+	+ and &lt;Fastq File Extension&gt; = Whatever you want; It does not matter if named .fq, .fastq, .fq.gz, etc
 Fastq files are assumed to be pre-processed for quality and adapter removal. We do not integrate such tools here as some would argue that letting the soft-clipping in BWA is a better approach and GATK deals with quality explicitly.
 
 ## The Ploidy File
@@ -36,11 +36,11 @@ This is where Individual IDs and their ploidy levels are specified. It has the f
 ## The Reference Fastas
 Reference fasta files have the following rules:
 * There is a sinlge fasta file per locus that contains reference sequences for all individuals
-* The reference fasta is named <Locus Name>.fasta
+* The reference fasta is named &lt;Locus Name&gt;.fasta
 	+ No spaces allowed in locus name
 	+ The locus name here will be the locus name of the output fasta with phased sequences
 * The fasta files are not interleaved and assume no line breaks in the sequence data
-* The fasta headers are assumed to match the Individual ID (i.e. ><Individual ID>)
+* The fasta headers are assumed to match the Individual ID (i.e. &gt;&lt;Individual ID&gt;)
 * Other information can follow the Individual ID in the fasta header, but will be ignored      
 
 ## The Template File
