@@ -19,8 +19,8 @@
 Fastq files follow the following naming rules:
 * Only paired-end data allowed
 * Reads should be named as
-	+ <Individual ID>.R1.<Fastq File Extension>
-	+ <Individual ID>.R2.<Fastq File Extention>
+	+ &ltIndividual ID&gt.R1.&ltFastq File Extension&gt
+	+ &ltIndividual ID&gt.R2.&ltFastq File Extention%gt
 	+ where <Individual ID> = The individual name specified in the ploidy file
 	+ and <Fastq File Extension> = Whatever you want; It does not matter if named *.fq, *.fastq, *.fq.gz, etc
 Fastq files are assumed to be pre-processed for quality and adapter removal. We do not integrate such tools here as some would argue that letting the soft-clipping in BWA is a better approach and GATK deals with quality explicitly.
