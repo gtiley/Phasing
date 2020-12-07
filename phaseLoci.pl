@@ -3,7 +3,7 @@ use strict;
 
 #----------------------------------------------------------------------------------------#
 #George P. Tiley and Andrew A. Crowl
-#30 July 2020
+#09 Novermber 2020
 #contact: george.tiley@duke.edu
 #contact: andrew.crowl@duke.edu
 #Genotype target-enrichment loci of known ploidy
@@ -99,20 +99,30 @@ while (<FH1>)
 			system "mkdir $controlArgs{PHASE_OUT}";
 		}
     }
-    if (/FASTA_OUT\s+\=\s+(\S+)/)
-    {
-		$controlArgs{FASTA_OUT} = $1;
-		if ($passedArgs{runmode} < 2)
-		{
-			system "mkdir $controlArgs{FASTA_OUT}";
-		}
-    }
     if (/IUPAC_OUT\s+\=\s+(\S+)/)
     {
 		$controlArgs{IUPAC_OUT} = $1;
 		if ($passedArgs{runmode} < 2)
 		{
 			system "mkdir $controlArgs{IUPAC_OUT}";
+		}
+    }
+    if (/FASTA_OUT\s+\=\s+(\S+)/)
+    {
+		$controlArgs{FASTA_OUT} = $1;
+		if ($passedArgs{runmode} == 2)
+		{
+			system "mkdir $controlArgs{FASTA_OUT}";
+			system "mkdir $controlArgs{FASTA_OUT}/PHASED";
+			system "mkdir $controlArgs{FASTA_OUT}/GENOTYPE";
+		}
+    }
+    if (/SUMMARYSTATS_OUT\s+\=\s+(\S+)/)
+    {
+		$controlArgs{SUMMARYSTATS_OUT} = $1;
+		if ($passedArgs{runmode} == 2)
+		{
+			system "mkdir $controlArgs{SUMMARYSTATS_OUT}";
 		}
     }
     if (/REF\s+\=\s+(\S+)/)
@@ -255,7 +265,15 @@ foreach my $tax (sort keys %taxaPloidy)
 		print "STEP3: Identifying variants\n";
 		system "$controlArgs{SAMTOOLS} index $controlArgs{GENOTYPE_OUT}/$tax/$tax.marked.bam";
 		system "$controlArgs{GATK} HaplotypeCaller -R $controlArgs{GENOTYPE_OUT}/$tax/$tax.ref.fasta -I $controlArgs{GENOTYPE_OUT}/$tax/$tax.marked.bam -ploidy $taxaPloidy{$tax} -O $controlArgs{GENOTYPE_OUT}/$tax/$tax.vcf";
-		system "$controlArgs{GATK} SelectVariants -R $controlArgs{GENOTYPE_OUT}/$tax/$tax.ref.fasta -V $controlArgs{GENOTYPE_OUT}/$tax/$tax.vcf -select-type SNP --restrict-alleles-to BIALLELIC -O $controlArgs{GENOTYPE_OUT}/$tax/$tax.snps.biallelic.vcf"; 
+		system "$controlArgs{GATK} VariantAnnotator -R $controlArgs{GENOTYPE_OUT}/$tax/$tax.ref.fasta -V $controlArgs{GENOTYPE_OUT}/$tax/$tax.vcf -A AlleleFraction -O $controlArgs{GENOTYPE_OUT}/$tax/$tax.ab.vcf";
+		system "$controlArgs{GATK} VariantFiltration -R $controlArgs{GENOTYPE_OUT}/$tax/$tax.ref.fasta -V $controlArgs{GENOTYPE_OUT}/$tax/$tax.ab.vcf -O $controlArgs{GENOTYPE_OUT}/$tax/$tax.abf.vcf \\
+                --filter-expression \"QD < 2.0\" --filter-name \"QD_lt2\" \\
+                --filter-expression \"FS > 60.0\" --filter-name \"FS_gt60\" \\
+                --filter-expression \"MQ < 40.0\" --filter-name \"MQ_lt40\" \\
+                --filter-expression \"ReadPosRankSum < -8.0\" --filter-name \"ReadPosRankSum_ltm8\" \\
+                --filter-expression \"AF < 0.05\" --filter-name \"AF_05\" \\
+                --filter-expression \"AF > 0.95\" --filter-name \"AF_05\"";
+		system "$controlArgs{GATK} SelectVariants -R $controlArgs{GENOTYPE_OUT}/$tax/$tax.ref.fasta -V $controlArgs{GENOTYPE_OUT}/$tax/$tax.abf.vcf -select-type SNP --restrict-alleles-to BIALLELIC -O $controlArgs{GENOTYPE_OUT}/$tax/$tax.snps.biallelic.vcf"; 
 
 ######STEP FOUR: Output new supercontig FASTA with ambiguity codes
 		print "STEP 4: Generating IUPAC FASTA file\n";
@@ -344,10 +362,19 @@ foreach my $tax (sort keys %taxaPloidy)
 		print OUT1 "$controlArgs{PICARD} MarkDuplicates I=$controlArgs{GENOTYPE_OUT}/$tax/$tax.merged.bam O=$controlArgs{GENOTYPE_OUT}/$tax/$tax.marked.bam M=$controlArgs{GENOTYPE_OUT}/$tax/$tax.metrics.txt\n";
 	
 #######STEP THREE: Identify variants, select only SNPs
-		print "STEP3: Identifying variants\n";
+		print "STEP 3: Identifying variants\n";
 		print OUT1 "$controlArgs{SAMTOOLS} index $controlArgs{GENOTYPE_OUT}/$tax/$tax.marked.bam\n";
 		print OUT1 "$controlArgs{GATK} HaplotypeCaller -R $controlArgs{GENOTYPE_OUT}/$tax/$tax.ref.fasta -I $controlArgs{GENOTYPE_OUT}/$tax/$tax.marked.bam -ploidy $taxaPloidy{$tax} -O $controlArgs{GENOTYPE_OUT}/$tax/$tax.vcf\n";
 		print OUT1 "$controlArgs{GATK} SelectVariants -R $controlArgs{GENOTYPE_OUT}/$tax/$tax.ref.fasta -V $controlArgs{GENOTYPE_OUT}/$tax/$tax.vcf -select-type SNP --restrict-alleles-to BIALLELIC -O $controlArgs{GENOTYPE_OUT}/$tax/$tax.snps.biallelic.vcf\n"; 
+		print OUT1 "$controlArgs{GATK} VariantAnnotator -R $controlArgs{GENOTYPE_OUT}/$tax/$tax.ref.fasta -V $controlArgs{GENOTYPE_OUT}/$tax/$tax.vcf -A AlleleFraction -O $controlArgs{GENOTYPE_OUT}/$tax/$tax.ab.vcf\n";
+		print OUT1 "$controlArgs{GATK} VariantFiltration -R $controlArgs{GENOTYPE_OUT}/$tax/$tax.ref.fasta -V $controlArgs{GENOTYPE_OUT}/$tax/$tax.ab.vcf -O $controlArgs{GENOTYPE_OUT}/$tax/$tax.abf.vcf \\
+                       --filter-expression \"QD < 2.0\" --filter-name \"QD_lt2\" \\
+                       --filter-expression \"FS > 60.0\" --filter-name \"FS_gt60\" \\
+                       --filter-expression \"MQ < 40.0\" --filter-name \"MQ_lt40\" \\
+                       --filter-expression \"ReadPosRankSum < -8.0\" --filter-name \"ReadPosRankSum_ltm8\" \\
+                       --filter-expression \"AF < 0.05\" --filter-name \"AF_05\" \\
+                       --filter-expression \"AF > 0.95\" --filter-name \"AF_95\"\n";
+		print OUT1 "$controlArgs{GATK} SelectVariants -R $controlArgs{GENOTYPE_OUT}/$tax/$tax.ref.fasta -V $controlArgs{GENOTYPE_OUT}/$tax/$tax.abf.vcf -select-type SNP --restrict-alleles-to BIALLELIC -O $controlArgs{GENOTYPE_OUT}/$tax/$tax.snps.biallelic.vcf\n"; 
 
 ######STEP FOUR: Output new supercontig FASTA with ambiguity codes
 		print "STEP 4: Generating IUPAC FASTA file\n";
@@ -403,7 +430,7 @@ foreach my $tax (sort keys %taxaPloidy)
 		    	open FH1,'<',"$controlArgs{GENOTYPE_OUT}/$tax/$tax.snps.biallelic.$locus.vcf";
 		    	while(<FH1>)
 		    	{
-		    		if (/\S+\s+\d+\s+\.\s+\S+\s+\S+\s+\S+\s+\.\s+\S+\s+\S+\s+\S+/)
+		    		if (/\S+\s+\d+\s+\.\s+\S+\s+\S+\s+\S+\s+PASS\s+\S+\s+\S+\s+\S+/)
 		    		{
 		    			$variantsDetected++;
 		    		}
@@ -433,7 +460,7 @@ foreach my $tax (sort keys %taxaPloidy)
 		    			}
 		    			if ($switch == 1)
 		    			{
-							if ($line =~ m/\S+\s+(\d+)\s+\.\s+(\S+)\s+(\S+)\s+\S+\s+\.\s+\S+\s+\S+\s+\S+/)
+							if ($line =~ m/\S+\s+(\d+)\s+\.\s+(\S+)\s+(\S+)\s+\S+\s+PASS\s+\S+\s+\S+\s+\S+/)
 							{
 						    	my $pos = $1;
 							    my $a1 = $2;
@@ -587,14 +614,11 @@ if ($passedArgs{runmode} == 2)
     print "STEP 8: Output fasta files of orthologous phased haplotype sequences\n";
 	my %phasedSeq = ();
 	my %tax2phase = ();
-	my %summaryStats = ();
 	
 	foreach my $tax (sort keys %taxaPloidy)
 	{
     	my @phasedFastaFiles = ();
     	@phasedFastaFiles = glob("$controlArgs{PHASE_OUT}/$tax/$tax.*.phased.fasta");
-    	$summaryStats{$tax}{loci} = 0;
-    	$summaryStats{$tax}{alleles} = 0;
     	foreach my $pff (@phasedFastaFiles)
     	{
 			if ($pff =~ m/$controlArgs{PHASE_OUT}\/$tax\/$tax\.(\S+)\.phased\.fasta/)
@@ -609,7 +633,6 @@ if ($passedArgs{runmode} == 2)
 					{
 					    $allele = $1;
 		    			$allele =~ s/__\S+__/__/;
-		    			$summaryStats{$tax}{alleles}++;
 					}
 					elsif (/(\S+)/)
 					{
@@ -637,16 +660,13 @@ if ($passedArgs{runmode} == 2)
 
 	foreach my $locus (sort keys %locusList)
 	{
-    	#print "$locus\n";
-    	open OUT1,'>',"$controlArgs{FASTA_OUT}/$locus.fasta";
+    	open OUT1,'>',"$controlArgs{FASTA_OUT}/PHASED/$locus.fasta";
     	foreach my $tax (sort keys %taxaPloidy)
     	{
     		if ($passedArgs{genotype} == 0)
     		{
 				if (exists $refSeqs{$tax}{$locus})
 				{
-		    		#if (scalar(@{$tax2phase{$locus}{$tax}}) > 0)
-		    		$summaryStats{$tax}{loci}++;
 				    if (exists $tax2phase{$locus}{$tax}[0])
 	    			{
 						for my $i (0..(scalar(@{$tax2phase{$locus}{$tax}}) - 1))
@@ -665,8 +685,6 @@ if ($passedArgs{runmode} == 2)
     		{
 				if (exists $altSeqs{$tax}{$locus})
 				{
-		    		#if (scalar(@{$tax2phase{$locus}{$tax}}) > 0)
-		    		$summaryStats{$tax}{loci}++;
 				    if (exists $tax2phase{$locus}{$tax}[0])
 	    			{
 						for my $i (0..(scalar(@{$tax2phase{$locus}{$tax}}) - 1))
@@ -684,11 +702,250 @@ if ($passedArgs{runmode} == 2)
     	}
     	close OUT1;
 	}
-	open OUT1,'>',"summaryCounts.txt";
-	print OUT1 "Individual\tnLoci\tnAlleles\n";
+	
+########
+#Added per-locus genotype fasta files to FASTA_OUT 20201109
+########	
+	print "STEP 9: Output fasta files of orthologous unphased genotype sequences\n";
+	my %genotypeSeq = ();
 	foreach my $tax (sort keys %taxaPloidy)
 	{
-		print OUT1 "$tax\t$summaryStats{$tax}{loci}\t$summaryStats{$tax}{alleles}\n";
+		open FH1,'<',"$controlArgs{IUPAC_OUT}/$tax/$tax.iupac.fasta";
+		my $locus = "";
+		while(<FH1>)
+		{
+			if (/^>\S+\s+(\S+)\:\d+\-\d+/)
+			{
+				$locus = $1;
+				$genotypeSeq{$tax}{$locus} = ""; 
+			}
+			elsif (/(\S+)/)
+			{
+				my $seq = $1;
+				$genotypeSeq{$tax}{$locus} = $genotypeSeq{$tax}{$locus} . $seq;
+			}
+		}
+		close FH1;
+	}
+	
+	foreach my $locus (sort keys %locusList)
+	{
+		open OUT1,'>',"$controlArgs{FASTA_OUT}/GENOTYPE/$locus.fasta";
+    	foreach my $tax (sort keys %taxaPloidy)
+    	{
+    		if (exists $genotypeSeq{$tax}{$locus})
+			{
+    			print OUT1 ">$tax\n$genotypeSeq{$tax}{$locus}\n";
+    		}
+    	}
+    	close OUT1;
+    }
+    
+########
+#Added basic phasing stats to SUMMARYSTATS_OUT
+########
+	print "STEP 10: Collecting Phasing Statistics\n";
+	my %phasein = ();
+	my %alleleCounts = ();
+	my $maxAlleles = 0;
+	my %globalStats = ();
+	my %globalCounts = ();
+
+	foreach my $tax (sort keys %taxaPloidy)
+	{
+		if ($taxaPloidy{$tax} > $maxAlleles)
+		{
+			$maxAlleles = $taxaPloidy{$tax};	
+		}
+    	foreach my $locus (sort keys %locusList)
+	    {
+			my $nvar = 0;
+			my $nblocks = 0;
+			my $het = 0;
+			my $bl = 0;
+			my $lbl = 0;
+			if (exists $refSeqs{$tax}{$locus})
+			{
+	    		open FH1,'<',"$controlArgs{GENOTYPE_OUT}/$tax/$tax.snps.biallelic.$locus.vcf";
+			    while (<FH1>)
+	    		{
+					if (/PASS/)
+					{
+					    $nvar++;
+					}
+	    		}
+			    close FH1;
+
+				my $fragFile = "$controlArgs{GENOTYPE_OUT}/$tax/$tax.$locus.phase.out";
+				if (-e $fragFile)
+				{
+					open FH1,'<',"$fragFile";
+					#BLOCK: offset: 1 len: 19 phased: 76
+					while (<FH1>)
+					{
+					    if(/#BLOCK:\s+offset:\s+\d+\s+len:\s+(\d+)\s+phased:\s+\d+/)
+		    			{
+							$bl = $1;
+							if ($bl > $lbl)
+							{
+			    				$lbl = $bl;
+							}
+							$nblocks++;
+		    			}
+					}
+					close FH1;
+					$het = $nvar/(length($refSeqs{$tax}{$locus}));
+				}
+				$phasein{$tax}{$locus}{nvar} = $nvar;
+				$phasein{$tax}{$locus}{het} = $het;
+				$phasein{$tax}{$locus}{nblocks} = $nblocks;
+				$phasein{$tax}{$locus}{lbl} = $lbl;
+    		}
+		}
+	}
+
+	foreach my $locus (sort keys %locusList)
+	{
+    	open FH1,'<',"$controlArgs{FASTA_OUT}/PHASED/$locus.fasta";
+    	while (<FH1>)
+    	{
+			if (/^>(\S+)\_\_\S+/)
+			{
+			    my $tax = $1;
+	   			if (! exists $alleleCounts{$tax}{$locus})
+			    {
+					$alleleCounts{$tax}{$locus} = 1;
+	   			}
+	   			elsif (exists $alleleCounts{$tax}{$locus})
+	   			{   
+					$alleleCounts{$tax}{$locus} = $alleleCounts{$tax}{$locus} + 1;
+	   			}
+			}
+    	}
+    	close FH1;
+	}
+
+########
+#Print out all per-locus stats per individual as well as the global counts that are average over present loci
+########
+	
+	foreach my $tax (sort keys %taxaPloidy)
+	{
+    	open OUT1,'>',"$controlArgs{SUMMARYSTATS_OUT}/$tax.phasingSummary.txt";
+		print OUT1 "LOCUS\tLENGTH\tNVAR\tHET\tNBLOCKS\tLONGESTBL";
+		for my $i (1..$maxAlleles)
+		{
+			print OUT1 "\t$i";
+			$globalCounts{$tax}{$i} = 0;
+		}
+		print OUT1 "\n";
+		$globalStats{$tax}{nloci} = 0;
+		$globalStats{$tax}{ninvarloci} = 0;
+		$globalStats{$tax}{nvarloci} = 0;
+		$globalStats{$tax}{nphaseloci} = 0;
+		$globalStats{$tax}{loclen} = 0;
+		$globalStats{$tax}{nvar} = 0;
+		$globalStats{$tax}{het} = 0;
+		$globalStats{$tax}{nblocks} = 0;
+		$globalStats{$tax}{lbl} = 0;
+		
+	    foreach my $locus (sort keys %locusList)
+    	{
+			if (exists $refSeqs{$tax}{$locus})
+			{
+				my $refLen = length($refSeqs{$tax}{$locus});
+	    		print OUT1 "$locus\t$refLen\t$phasein{$tax}{$locus}{nvar}\t$phasein{$tax}{$locus}{het}\t$phasein{$tax}{$locus}{nblocks}\t$phasein{$tax}{$locus}{lbl}";
+	    		for my $i (1..$maxAlleles)
+	    		{
+	    			if ($alleleCounts{$tax}{$locus} == $i)
+	    			{
+						print OUT1 "\t1";
+						$globalCounts{$tax}{$i} = $globalCounts{$tax}{$i} + 1;
+					}
+					else
+					{
+						print OUT1 "\t0";
+					}
+	    		}
+				print OUT1 "\n";
+				
+				$globalStats{$tax}{nloci} = $globalStats{$tax}{nloci} + 1;
+				$globalStats{$tax}{loclen} = $globalStats{$tax}{loclen} + length($refSeqs{$tax}{$locus});
+				
+				if ($phasein{$tax}{$locus}{nblocks} > 0 && $phasein{$tax}{$locus}{nvar} > 0)
+				{
+					$globalStats{$tax}{nvar} = $globalStats{$tax}{nvar} + $phasein{$tax}{$locus}{nvar};
+					$globalStats{$tax}{het} = $globalStats{$tax}{het} + $phasein{$tax}{$locus}{het};
+					$globalStats{$tax}{nblocks} = $globalStats{$tax}{nblocks} + $phasein{$tax}{$locus}{nblocks};
+					$globalStats{$tax}{lbl} = $globalStats{$tax}{lbl} + $phasein{$tax}{$locus}{lbl};
+					$globalStats{$tax}{nphaseloci} = $globalStats{$tax}{nphaseloci} + 1;
+					$globalStats{$tax}{nvarloci} = $globalStats{$tax}{nvarloci} + 1;
+				}
+				if ($phasein{$tax}{$locus}{nblocks} == 0 && $phasein{$tax}{$locus}{nvar} == 0)
+				{
+					$globalStats{$tax}{ninvarloci} = $globalStats{$tax}{ninvarloci} + 1;
+				}
+				if ($phasein{$tax}{$locus}{nblocks} == 0 && $phasein{$tax}{$locus}{nvar} > 0)
+				{
+					$globalStats{$tax}{nvar} = $globalStats{$tax}{nvar} + $phasein{$tax}{$locus}{nvar};
+					$globalStats{$tax}{het} = $globalStats{$tax}{het} + $phasein{$tax}{$locus}{het};
+					$globalStats{$tax}{nvarloci} = $globalStats{$tax}{nvarloci} + 1;
+				}
+				if ($phasein{$tax}{$locus}{nblocks} > 0 && $phasein{$tax}{$locus}{nvar} == 0)
+				{
+					print "Critical error: Cannot have phased loci without passing variants!\n"
+				}
+			}
+			elsif (! exists $refSeqs{$tax}{$locus})
+			{
+				print OUT1 "$locus\t0\t0\t0\t0\t0";
+				for my $i (1..$maxAlleles)
+	    		{
+	    			print OUT1 "\tNA";
+	    		}
+	    		print OUT1 "\n";
+			}
+    	}
+    	close OUT1;
+    }
+    
+    open OUT1,'>',"$controlArgs{SUMMARYSTATS_OUT}/averagePhasingStats.txt";
+    print OUT1 "INDIVIDUAL\tNLOCI\tNVARLOCI\tNINVLOCI\tNPHASELOCI\tAVG_LENGTH\tAVG_NVAR\tAVG_HET\tAVG_NBLOCKS\tAVG_LONGESTBL";
+    for my $i (1..$maxAlleles)
+	{
+		print OUT1 "\t$i";
+	}
+	print OUT1 "\n";
+	foreach my $tax (sort keys %taxaPloidy)
+	{
+		if ($globalStats{$tax}{nloci} > 0)
+		{
+			$globalStats{$tax}{loclen} = $globalStats{$tax}{loclen}/$globalStats{$tax}{nloci};
+			$globalStats{$tax}{nvar} = $globalStats{$tax}{nvar}/$globalStats{$tax}{nloci};
+			$globalStats{$tax}{het} = $globalStats{$tax}{het}/$globalStats{$tax}{nloci};
+			if ($globalStats{$tax}{nphaseloci} > 0)
+			{
+				$globalStats{$tax}{nblocks} = $globalStats{$tax}{nblocks}/$globalStats{$tax}{nphaseloci};
+				$globalStats{$tax}{lbl} = $globalStats{$tax}{lbl}/$globalStats{$tax}{nphaseloci};
+			}
+			print OUT1 "$tax\t$globalStats{$tax}{nloci}\t$globalStats{$tax}{nvarloci}\t$globalStats{$tax}{ninvarloci}\t$globalStats{$tax}{nphaseloci}\t$globalStats{$tax}{loclen}\t$globalStats{$tax}{nvar}\t$globalStats{$tax}{het}\t$globalStats{$tax}{nblocks}\t$globalStats{$tax}{lbl}";
+		}
+		elsif ($globalStats{$tax}{nloci} == 0)
+		{
+			print OUT1 "$tax\t0\t0\t0\t0\t0\t0\t0\t0\t0";
+		}
+		for my $i (1..$maxAlleles)
+		{
+			if ($i <= $taxaPloidy{$tax})
+			{
+				print OUT1 "\t$globalCounts{$tax}{$i}";
+			}
+			elsif ($i > $taxaPloidy{$tax})
+			{
+				print OUT1 "\tNA";
+			}
+		}
+		print OUT1 "\n";
 	}
 	close OUT1;
 }
