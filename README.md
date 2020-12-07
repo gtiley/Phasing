@@ -4,15 +4,18 @@
 
 ## Important note - you will run the script twice
 	  1. First in --runmode 0 or 1
+	  	* 0 will run the phasing pipeline one each individual, one at a time, on a single processor. This might be helpful when analyzing a small number of individuals on a local machine. Otherwise, I recommend 1 so each individual can be distributed on a single processesor when on a cluster. All of your necessary cluster configuration needs to happen in *template.sh*.
+		* 1 will distribute 
 	  2. Second in --runmode 2
+	  	* 2 generates the per-locus fasta output and summary statistics. This step is fast and happens on a single processor. Here the genotype <0 || 1> option comes into effect.
+		* The genotype option affects how variants with ambiguous phases are handeled. When multiple haplotype blocks are recovered for a locus, we retain the phasing of the block with the most variants only. 0 causes the others to be replaced with "N" while 1 causes these unphased variants to be replaced with there IUPAC codes. There may be analyses where one option is more favorable than the other, so we make both possibilities available here.  
 
-## Important note - you will need a copy of the H-PoPGv0.2.0.jar file from https://github.com/MinzhuXie/H-PoPG
+### Important note - you will need a copy of the H-PoPGv0.2.0.jar file from https://github.com/MinzhuXie/H-PoPG
 
 ## Important note - this is under active development, it works but we have several things planned in the near future
-	  1. More user-friendly
+	  1. Data preprocessing
 	  2. GATK filter options
-	  3. Better summary statistics
-	  4. Ploidy estimation 
+	  3. Ploidy estimation
 
 # Some notes on configuring data and folders
 ## Naming of Fastq files
@@ -23,7 +26,7 @@ Fastq files follow the following naming rules:
 	+ &lt;Individual ID&gt;.R2.&lt;Fastq File Extention&gt;
 	+ where &lt;Individual ID&gt; = The individual name specified in the ploidy file
 	+ and &lt;Fastq File Extension&gt; = Whatever you want; It does not matter if named .fq, .fastq, .fq.gz, etc
-Fastq files are assumed to be pre-processed for quality and adapter removal. We do not integrate such tools here as some would argue that letting the soft-clipping in BWA is a better approach and GATK deals with quality explicitly.
+Fastq files are assumed to be pre-processed for quality and adapter removal. We do not integrate such tools here as some would argue that the soft-clipping in BWA is a better approach and GATK deals with quality explicitly.
 
 ## The Ploidy File
 This is where Individual IDs and their ploidy levels are specified. It has the following rules:
