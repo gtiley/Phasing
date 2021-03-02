@@ -93,7 +93,7 @@ First, the genotyping problem in polyploids has a lot of uncertainty and I recom
 Second, there has apparently been a flurry of phasing algorithms developed for polyploids in the recent years after my colleagues and I began working on this pipeline and our ideas. I will try to investigate and compare some of them (Moeinzadeh et al. 2020; ) in the future 
 
 
-#References
+# References
 * Li H, Durbin R. 2009a. Fast and accurate short read alignment with Burrows-Wheeler transform. Bioinformatics 25:1754-1760.
 * Li H, Handsaker B, Wysoker A, Fennell T, Ruan J, Homer N, Marth G, Abecasis G, Durbin R, 1000 Genome Project Data Processing Subgroup. 2009b. The sequence alignment/map format and SAMtools. Bioinformatics 25:2078-2079. 
 * McKenna A, Hanna M, Banks E, Sivachenko A, Cibulskis K, Kernytsky A, Garimella K, Altshuler D, Gabriel S, Daly M, et al. 2010. The Genome Analysis Toolkit: a MapReduce framework for analyzing next-generation DNA sequencing data. Genome Res 20:1297-1303.
