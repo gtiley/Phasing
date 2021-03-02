@@ -3,7 +3,7 @@ use strict;
 
 #----------------------------------------------------------------------------------------#
 #George P. Tiley and Andrew A. Crowl
-#09 Novermber 2020
+#02 March 2021
 #contact: george.tiley@duke.edu
 #contact: andrew.crowl@duke.edu
 #Genotype target-enrichment loci of known ploidy
@@ -272,7 +272,7 @@ foreach my $tax (sort keys %taxaPloidy)
                 --filter-expression \"MQ < 40.0\" --filter-name \"MQ_lt40\" \\
                 --filter-expression \"ReadPosRankSum < -8.0\" --filter-name \"ReadPosRankSum_ltm8\" \\
                 --filter-expression \"AF < 0.05\" --filter-name \"AF_05\" \\
-                --filter-expression \"AF > 0.95\" --filter-name \"AF_05\"";
+                --filter-expression \"AF > 0.95\" --filter-name \"AF_95\"";
 		system "$controlArgs{GATK} SelectVariants -R $controlArgs{GENOTYPE_OUT}/$tax/$tax.ref.fasta -V $controlArgs{GENOTYPE_OUT}/$tax/$tax.abf.vcf -select-type SNP --restrict-alleles-to BIALLELIC -O $controlArgs{GENOTYPE_OUT}/$tax/$tax.snps.biallelic.vcf"; 
 
 ######STEP FOUR: Output new supercontig FASTA with ambiguity codes

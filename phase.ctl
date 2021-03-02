@@ -1,14 +1,13 @@
-#Paths to input files, output directories, and the ploidy file
-REF = <Your Path>/phasingExample_20201207/Dryopteris_ReferenceFasta
-GENOTYPE_OUT = <Your Path>/phasingExample_20201207/genotypeOutput
-PHASE_OUT = <Your Path>/phasingExample_20201207/phasedOutput
-FASTA_OUT = <Your Path>/phasingExample_20201207/fastaOutput
-IUPAC_OUT = <Your Path>/phasingExample_20201207/iupacOutput
-SUMMARYSTATS_OUT = <Your Path>/phasingExample_20201207/summaryStatsOutput
-FQ = <Your Path>/phasingExample_20201207/Dryopteris_RawReads
-PLOIDY = <Your Path>/phasingExample_20201207/ploidy.txt
 
-#Paths to software or names of binaries if you aleady have paths configured
+REF = /blue/burleigh/gtiley/phasing/20200412/Dryopteris_hybpiper/referenceSequences
+GENOTYPE_OUT = /blue/burleigh/gtiley/phasing/20200412/Dryopteris_hybpiper/genotypeOutput2
+PHASE_OUT = /blue/burleigh/gtiley/phasing/20200412/Dryopteris_hybpiper/phasedOutput2
+FASTA_OUT = /blue/burleigh/gtiley/phasing/20200412/Dryopteris_hybpiper/fastaOutput3
+IUPAC_OUT = /blue/burleigh/gtiley/phasing/20200412/Dryopteris_hybpiper/iupacOutput2
+SUMMARYSTATS_OUT = /blue/burleigh/gtiley/phasing/20200412/Dryopteris_hybpiper/summaryStatsOutput
+FQ = /blue/burleigh/gtiley/phasing/20200412/Dryopteris/Dryopteris_RawReads
+PLOIDY = /blue/burleigh/gtiley/phasing/20200412/Dryopteris_hybpiper/ploidy.txt
+
 BWA = bwa 
 PICARD = picard
 GATK = gatk
@@ -16,4 +15,4 @@ SAMTOOLS = samtools
 BAMTOOLS = bamtools
 BGZIP = bgzip
 TABIX = tabix
-HPOPG = <Your Path>/phasingExample_20201207/H-PoPG/H-PoPGv0.2.0.jar
+HPOPG = /blue/burleigh/gtiley/phasing/H-PoPG_2/H-PoPG/H-PoPGv0.2.0.jar
