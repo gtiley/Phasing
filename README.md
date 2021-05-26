@@ -11,11 +11,11 @@
 
 ## Important Note - you will run the script twice
 1. First in --runmode ```serial``` or ```cluster```
-+ ```serial``` will run PATÉ on each individual, one at a time, on a single processor. This might be helpful when analyzing a small number of individuals on a local machine. Otherwise, I recommend 1 so each individual can be distributed on a single processesor when on a cluster. All of your necessary cluster configuration needs to happen in *template.sh*.
-+ ```cluster``` will distribute 
+	+ ```serial``` will run PATÉ on each individual, one at a time, on a single processor. This might be helpful when analyzing a small number of individuals on a local machine. Otherwise, I recommend 1 so each individual can be distributed on a single processesor when on a cluster. All of your necessary cluster configuration needs to happen in *template.sh*.
+	+ ```cluster``` will distribute 
 2. Second in --runmode ```alleles```
-+ ```alleles``` generates the per-locus fasta output and summary statistics. This step is fast and happens on a single processor. Here the genotype < ```consensus``` || ```iupac``` > option comes into effect.
-+ The genotype option affects how variants with ambiguous phases are handeled. When multiple haplotype blocks are recovered for a locus, we retain the phasing of the block with the most variants only. ```consensus``` causes the others to be replaced with "N" while ```iupac``` causes these unphased variants to be replaced with there IUPAC codes. There may be analyses where one option is more favorable than the other, so we make both possibilities available here.  
+	+ ```alleles``` generates the per-locus fasta output and summary statistics. This step is fast and happens on a single processor. Here the genotype < ```consensus``` || ```iupac``` > option comes into effect.
+	+ The genotype option affects how variants with ambiguous phases are handeled. When multiple haplotype blocks are recovered for a locus, we retain the phasing of the block with the most variants only. ```consensus``` causes the others to be replaced with "N" while ```iupac``` causes these unphased variants to be replaced with there IUPAC codes. There may be analyses where one option is more favorable than the other, so we make both possibilities available here.  
 
 ## Important Note - you will to install a few software on your computer or cluster
 Please cite and credit the authors of all of the important bits that are glued together here.
@@ -36,8 +36,8 @@ Please cite and credit the authors of all of the important bits that are glued t
 * GENOTYPE\_OUT = output folder for genotyping files
 * PHASE\_OUT = output folder for phased sequences, but split by individual
 * FASTA\_OUT = output folder for fasta files you want to use
-+ PHASED - these are the fasta files with all phased alleles per-locus
-+ GENOTYPE - these fasta files have the unphased genotype sequences
+	+ PHASED - these are the fasta files with all phased alleles per-locus
+	+ GENOTYPE - these fasta files have the unphased genotype sequences
 * IUPAC\_OUT = output folder for phased sequences, but split by individual
 * SUMMARYSTATS\_OUT = output folder with all of the phasing summary statisitcs
 * FQ = input folder of fastq files
@@ -115,12 +115,12 @@ An output after runmode=2 is ```averagePhasingStats.txt```, which contains a few
 8. AVG_HET - average heterozygosity (per-base heterozygosity averaged over all loci - including the invariable ones) 
 9. AVG_NBLOCKS - average number of blocks per phased locus (thus, excluding loci without phasing information. Many of the Dryopteris individuals were close to 1 or even 1 in some cases. I think this is incredibly useful for evaluating how good the phasing is working.)
 10. AVG_LONGESTBL - Average number of variants in the longest phasing block. (thus not including loci without phasing information) 
-+ 1 - number of loci that were completely homozygous       
-+ 2 - number of loci with two phased alleles	      
-+ 3       .
-+ 4       .
-+ 5       .
-+ 6 - number of loci with six phased alleles (six was the max in Dryopteris. If you have higher ploidies, this will automatically go higher because it is based off of the ploidy file. If you have octoploids for example, this will then go to 8)
+	+ 1 - number of loci that were completely homozygous       
+	+ 2 - number of loci with two phased alleles	      
+	+ 3       .
+	+ 4       .
+	+ 5       .
+	+ 6 - number of loci with six phased alleles (six was the max in Dryopteris. If you have higher ploidies, this will automatically go higher because it is based off of the ploidy file. If you have octoploids for example, this will then go to 8)
 
 # Opinions
 There are several technical issues compounded in the existing pipeline and I view this as a starting point for enabling some interesting analyses of polyploid complexes. 
