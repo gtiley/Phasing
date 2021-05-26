@@ -31,6 +31,7 @@ Please cite and credit the authors of all of the important bits that are glued t
 4. Incorporating joint genotyping with a single reference
 
 ## Explanation of the control file options
+### There are several input and output folders and files to keep track of
 REF = input folder reference fasta files
 GENOTYPE\_OUT = output folder for genotyping files
 PHASE\_OUT = output folder for phased sequences, but split by individual
@@ -43,13 +44,14 @@ SUMMARYSTATS\_OUT = output folder with all of the phasing summary statisitcs
 FQ = input folder of fastq files
 PLOIDY = input ploidy file (see below)
 
-BWA = path to bwa 
+### The software dependencies
+BWA = path to bwa
 PICARD = path to picard
 GATK = path to gatk
 SAMTOOLS = path to samtools
 BAMTOOLS = path to bamtools
 BGZIP = path to bgzip from htslib 
-TABIX = path to tabix from htslib 
+TABIX = path to tabix from htslib
 HPOPG = path to H-PoPG jar file
 SCHEDULER = The submission command for your scheduler (SLURM uses sbatch)
 
