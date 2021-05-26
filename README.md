@@ -32,38 +32,37 @@ Please cite and credit the authors of all of the important bits that are glued t
 
 ## Explanation of the control file options
 ### There are several input and output folders and files to keep track of
-REF = input folder reference fasta files
-GENOTYPE\_OUT = output folder for genotyping files
-PHASE\_OUT = output folder for phased sequences, but split by individual
-FASTA\_OUT = output folder for fasta files you want to use
-* has two subdirectories
+* REF = input folder reference fasta files
+* GENOTYPE\_OUT = output folder for genotyping files
+* PHASE\_OUT = output folder for phased sequences, but split by individual
+* FASTA\_OUT = output folder for fasta files you want to use
 + PHASED - these are the fasta files with all phased alleles per-locus
 + GENOTYPE - these fasta files have the unphased genotype sequences
-IUPAC\_OUT = output folder for phased sequences, but split by individual
-SUMMARYSTATS\_OUT = output folder with all of the phasing summary statisitcs
-FQ = input folder of fastq files
-PLOIDY = input ploidy file (see below)
+* IUPAC\_OUT = output folder for phased sequences, but split by individual
+* SUMMARYSTATS\_OUT = output folder with all of the phasing summary statisitcs
+* FQ = input folder of fastq files
+* PLOIDY = input ploidy file (see below)
 
 ### The software dependencies
-BWA = path to bwa
-PICARD = path to picard
-GATK = path to gatk
-SAMTOOLS = path to samtools
-BAMTOOLS = path to bamtools
-BGZIP = path to bgzip from htslib 
-TABIX = path to tabix from htslib
-HPOPG = path to H-PoPG jar file
-SCHEDULER = The submission command for your scheduler (SLURM uses sbatch)
+* BWA = path to bwa
+* PICARD = path to picard
+* GATK = path to gatk
+* SAMTOOLS = path to samtools
+* BAMTOOLS = path to bamtools
+* BGZIP = path to bgzip from htslib 
+* TABIX = path to tabix from htslib
+* HPOPG = path to H-PoPG jar file
+* SCHEDULER = The submission command for your scheduler (SLURM uses sbatch)
 
 ### We make the VCF filtering options for GATK an option that the user can change. Each line is a separate filter and has the specific formatting of "<FILTER>" <whitespace> "<FILTER NAME>"
 ### The following are some reasonable defaults, but will note always be optimal. Consult VCF filtering annotations before altering.
-GATK\_FILTER\_EXPRESSION = "QD < 2.0" "QD\_lt2"
-GATK\_FILTER\_EXPRESSION = "FS > 60.0" "FS\_gt60"
-GATK\_FILTER\_EXPRESSION = "MQ < 40.0" "MQ\_lt40"
-GATK\_FILTER\_EXPRESSION = "ReadPosRankSum < -8.0" "ReadPosRankSum\_ltm8"
-GATK\_FILTER\_EXPRESSION = "AF < 0.05" "AF\_lt05"
-GATK\_FILTER\_EXPRESSION = "AF > 0.95" "AF\_gt95"
-GATK\_FILTER\_EXPRESSION = "DP < 10" "DP\_lt10"
+* GATK\_FILTER\_EXPRESSION = "QD < 2.0" "QD\_lt2"
+* GATK\_FILTER\_EXPRESSION = "FS > 60.0" "FS\_gt60"
+* GATK\_FILTER\_EXPRESSION = "MQ < 40.0" "MQ\_lt40"
+* GATK\_FILTER\_EXPRESSION = "ReadPosRankSum < -8.0" "ReadPosRankSum\_ltm8"
+* GATK\_FILTER\_EXPRESSION = "AF < 0.05" "AF\_lt05"
+* GATK\_FILTER\_EXPRESSION = "AF > 0.95" "AF\_gt95"
+* GATK\_FILTER\_EXPRESSION = "DP < 10" "DP\_lt10"
 
 # Some notes on configuring data and folders
 ## Naming of Fastq Files
