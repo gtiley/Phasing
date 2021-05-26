@@ -1,21 +1,21 @@
 # Using the script
 ## Try this to see options:
-```perl phaseLoci.pl```
+```perl PATE.pl```
 
 ## There are four input options and all are required
-```perl phaseLoci.pl --controlFile phase.ctl --runmode 1 --template template.sh --genotype 0```
-1. The control file (phase.ctl) is used to configure the paths to other software, your input data, and where you want your output.
+```perl PATE.pl --controlFile PATE.ctl --runmode cluster --template template.sh --genotype consensus```
+1. The control file (PATE.ctl) is used to configure the paths to other software, your input data, and where you want your output.
 2. The runmode flag is used to determine whether you are running the pipeline serially on perhaps your personal computer or wanting to distribute jobs on a cluster. See below for more details.
 3. The template file (template.sh) has the basic directives you will use for running on a cluster.
 4. The genotype flag determines how phasing ambiguity is handeled. See below for details.
 
 ## Important Note - you will run the script twice
-1. First in --runmode 0 or 1
-+ 0 will run the phasing pipeline one each individual, one at a time, on a single processor. This might be helpful when analyzing a small number of individuals on a local machine. Otherwise, I recommend 1 so each individual can be distributed on a single processesor when on a cluster. All of your necessary cluster configuration needs to happen in *template.sh*.
-+ 1 will distribute 
-2. Second in --runmode 2
-+ 2 generates the per-locus fasta output and summary statistics. This step is fast and happens on a single processor. Here the genotype <0 || 1> option comes into effect.
-+ The genotype option affects how variants with ambiguous phases are handeled. When multiple haplotype blocks are recovered for a locus, we retain the phasing of the block with the most variants only. 0 causes the others to be replaced with "N" while 1 causes these unphased variants to be replaced with there IUPAC codes. There may be analyses where one option is more favorable than the other, so we make both possibilities available here.  
+1. First in --runmode ```serial``` or ```cluster```
++ ```serial``` will run PATÉ on each individual, one at a time, on a single processor. This might be helpful when analyzing a small number of individuals on a local machine. Otherwise, I recommend 1 so each individual can be distributed on a single processesor when on a cluster. All of your necessary cluster configuration needs to happen in *template.sh*.
++ ```cluster``` will distribute 
+2. Second in --runmode ```alleles```
++ ```alleles``` generates the per-locus fasta output and summary statistics. This step is fast and happens on a single processor. Here the genotype < ```consensus``` || ```iupac``` > option comes into effect.
++ The genotype option affects how variants with ambiguous phases are handeled. When multiple haplotype blocks are recovered for a locus, we retain the phasing of the block with the most variants only. ```consensus``` causes the others to be replaced with "N" while ```iupac``` causes these unphased variants to be replaced with there IUPAC codes. There may be analyses where one option is more favorable than the other, so we make both possibilities available here.  
 
 ## Important Note - you will to install a few software on your computer or cluster
 Please cite and credit the authors of all of the important bits that are glued together here.
@@ -25,11 +25,43 @@ Please cite and credit the authors of all of the important bits that are glued t
 * HPoPG (Xie et al. 2016)
 
 ## Important Note - this is under active development, it works but we have several things planned in the near future
-1. Data preprocessing
-2. GATK filter options
-+ This is maybe the most immediate need. Filters might require fine-tuning depending on the study. Currently the filtering expressions are hardcoded as described in the manuscript. If you want edit filters, this should be intuitive when inspecting line 275 for runmode=0 or line 371 for runmode=1.
-3. Ploidy estimation
+1. Ploidy estimation
+2. Parent assignment
+3. Determining allo vs. autopolyploidy
 4. Incorporating joint genotyping with a single reference
+
+## Explanation of the control file options
+REF = input folder reference fasta files
+GENOTYPE\_OUT = output folder for genotyping files
+PHASE\_OUT = output folder for phased sequences, but split by individual
+FASTA\_OUT = output folder for fasta files you want to use
+* has two subdirectories
++ PHASED - these are the fasta files with all phased alleles per-locus
++ GENOTYPE - these fasta files have the unphased genotype sequences
+IUPAC\_OUT = output folder for phased sequences, but split by individual
+SUMMARYSTATS\_OUT = output folder with all of the phasing summary statisitcs
+FQ = input folder of fastq files
+PLOIDY = input ploidy file (see below)
+
+BWA = path to bwa 
+PICARD = path to picard
+GATK = path to gatk
+SAMTOOLS = path to samtools
+BAMTOOLS = path to bamtools
+BGZIP = path to bgzip from htslib 
+TABIX = path to tabix from htslib 
+HPOPG = path to H-PoPG jar file
+SCHEDULER = The submission command for your scheduler (SLURM uses sbatch)
+
+### We make the VCF filtering options for GATK an option that the user can change. Each line is a separate filter and has the specific formatting of "<FILTER>" <whitespace> "<FILTER NAME>"
+### The following are some reasonable defaults, but will note always be optimal. Consult VCF filtering annotations before altering.
+GATK\_FILTER\_EXPRESSION = "QD < 2.0" "QD\_lt2"
+GATK\_FILTER\_EXPRESSION = "FS > 60.0" "FS\_gt60"
+GATK\_FILTER\_EXPRESSION = "MQ < 40.0" "MQ\_lt40"
+GATK\_FILTER\_EXPRESSION = "ReadPosRankSum < -8.0" "ReadPosRankSum\_ltm8"
+GATK\_FILTER\_EXPRESSION = "AF < 0.05" "AF\_lt05"
+GATK\_FILTER\_EXPRESSION = "AF > 0.95" "AF\_gt95"
+GATK\_FILTER\_EXPRESSION = "DP < 10" "DP\_lt10"
 
 # Some notes on configuring data and folders
 ## Naming of Fastq Files
@@ -41,6 +73,7 @@ Fastq files follow the following naming rules:
 	+ where &lt;Individual ID&gt; = The individual name specified in the ploidy file
 	+ and &lt;Fastq File Extension&gt; = Whatever you want; It does not matter if named .fq, .fastq, .fq.gz, etc
 * Fastq files are assumed to be pre-processed for quality and adapter removal. We do not integrate such tools here as some would argue that the soft-clipping in BWA is a better approach and GATK deals with quality explicitly.
+* A helper script is available to format the fastq names for you, please see ```helperScripts/PATE_formatInput.pl```
 
 ## The Ploidy File
 This is where Individual IDs and their ploidy levels are specified. It has the following rules:
@@ -58,14 +91,15 @@ Reference fasta files have the following rules:
 	+ The locus name here will be the locus name of the output fasta with phased sequences
 * The fasta files are not interleaved and assume no line breaks in the sequence data
 * The fasta headers are assumed to match the Individual ID (i.e. &gt;&lt;Individual ID&gt;)
-* Other information can follow the Individual ID in the fasta header, but will be ignored      
+* Other information can follow the Individual ID in the fasta header, but will be ignored
+* A helper script is available to format the fasta files for you, please see ```helperScripts/PATE_formatInput.pl```      
 
 ## The Template File
 There is a file called template.sh to help distribute jobs on a cluster
 * Make the necessary changes to the scheuduler directives for your account
 * I was on a cluster with SLURM when making this - you will need to edit for PBS or SGE accordingly
-* If you run the script in runmode 1, all of the commands are pasted below what you have in the template.sh file - all you need to do is configure the directives and paths to software here if they are not specified in the control file
-* The template file must always be provided as an argument, even if using runmode 0 or 2
+* If you run the script in runmode ```cluster```, all of the commands are pasted below what you have in the template.sh file - all you need to do is configure the directives and paths to software here if they are not specified in the control file
+* The template file must always be provided as an argument, even if using runmode ```serial``` or ```alleles```
 * The template file can be renamed if you like
 
 # Explanation of Summary Statistics
@@ -90,7 +124,7 @@ An output after runmode=2 is ```averagePhasingStats.txt```, which contains a few
 # Opinions
 There are several technical issues compounded in the existing pipeline and I view this as a starting point for enabling some interesting analyses of polyploid complexes. 
 First, the genotyping problem in polyploids has a lot of uncertainty and I recommend reading Gerard et al. (2018) to better appreciate the problems. Comparisons of genotypers are needed in the future, but we do our best to filter out errors from the final set of variants.
-Second, there has apparently been a flurry of phasing algorithms developed for polyploids in the recent years after my colleagues and I began working on this pipeline and our ideas. I will try to investigate and compare some of them (Moeinzadeh et al. 2020; ) in the future 
+Second, there has apparently been a flurry of phasing algorithms developed for polyploids in the recent years after my colleagues and I began working on this pipeline and our ideas. I will try to investigate and compare some of them (e.g. Moeinzadeh et al. 2020) in the future 
 
 
 # References
