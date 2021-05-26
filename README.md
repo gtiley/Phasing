@@ -125,7 +125,7 @@ An output after runmode=2 is ```averagePhasingStats.txt```, which contains a few
 # Opinions
 There are several technical issues compounded in the existing pipeline and I view this as a starting point for enabling some interesting analyses of polyploid complexes. 
 First, the genotyping problem in polyploids has a lot of uncertainty and I recommend reading Gerard et al. (2018) to better appreciate the problems. Comparisons of genotypers are needed in the future, but we do our best to filter out errors from the final set of variants.
-Second, there has apparently been a flurry of phasing algorithms developed for polyploids in the recent years after my colleagues and I began working on this pipeline and our ideas. I will try to investigate and compare some of them (e.g. Moeinzadeh et al. 2020) in the future 
+Second, there has apparently been a flurry of phasing algorithms developed for polyploids in the recent years after my colleagues and I began working on this pipeline and our ideas. I will try to investigate and compare some of them (e.g. Moeinzadeh et al. 2020) in the future.
 
 
 # References
