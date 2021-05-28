@@ -11,8 +11,8 @@
 
 ## Important Note - you will run the script twice
 1. First in --runmode ```serial``` or ```cluster```
-	+ ```serial``` will run PATÉ on each individual, one at a time, on a single processor. This might be helpful when analyzing a small number of individuals on a local machine. Otherwise, I recommend 1 so each individual can be distributed on a single processesor when on a cluster. All of your necessary cluster configuration needs to happen in *template.sh*.
-	+ ```cluster``` will distribute 
+	+ ```serial``` will run PATÉ on each individual, one at a time, on a single processor. This might be helpful when analyzing a small number of individuals on a local machine. Otherwise, I recommend ```cluster``` so each individual can be distributed on a single processesor when on a cluster. All of your necessary cluster configuration needs to happen in *template.sh*.
+	+ ```cluster``` will distribute each individual on a single processor on a cluster, based on the submission directives in *template.sh*.
 2. Second in --runmode ```alleles```
 	+ ```alleles``` generates the per-locus fasta output and summary statistics. This step is fast and happens on a single processor. Here the genotype < ```consensus``` || ```iupac``` > option comes into effect.
 	+ The genotype option affects how variants with ambiguous phases are handeled. When multiple haplotype blocks are recovered for a locus, we retain the phasing of the block with the most variants only. ```consensus``` causes the others to be replaced with "N" while ```iupac``` causes these unphased variants to be replaced with there IUPAC codes. There may be analyses where one option is more favorable than the other, so we make both possibilities available here.  
