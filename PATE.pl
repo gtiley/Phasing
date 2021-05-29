@@ -184,6 +184,26 @@ while (<FH1>)
 }
 close FH1;
 
+if (! exists $variantFilters{FILTER})
+{
+	print "\n########\nWARNING - no variant filter options specified\n########\n";
+	print "The following filters and filter names have been applied by default:\n";
+	print "GATK_FILTER_EXPRESSION = \"QD < 2.0\" \"QD_lt2\"\n";
+	print "GATK_FILTER_EXPRESSION = \"FS > 60.0\" \"FS_gt60\"\n";
+	print "GATK_FILTER_EXPRESSION = \"MQ < 40.0\" \"MQ_lt40\"\n";
+	print "GATK_FILTER_EXPRESSION = \"ReadPosRankSum < -8.0\" \"ReadPosRankSum_ltm8\"\n";
+	print "GATK_FILTER_EXPRESSION = \"AF < 0.05\" \"AF_lt05\"\n";
+	print "GATK_FILTER_EXPRESSION = \"AF > 0.95\" \"AF_gt95\"\n";
+	print "GATK_FILTER_EXPRESSION = \"DP < 10\" \"DP_lt10\"\n";
+	my @emergencyFilters = ("QD < 2.0","FS > 60.0","MQ < 40.0","ReadPosRankSum < -8.0","AF < 0.05","AF > 0.95","DP < 10");
+	my @emergencyFiltersNames = ("QD_lt2","FS_gt60","MQ_lt40","ReadPosRankSum_ltm8","AF_lt05","AF_gt95","DP_lt10");
+	for my $i (0..(scalar(@emergencyFilters)-1))
+	{
+		push @{$variantFilters{FILTER}}, $emergencyFilters[$i];
+        push @{$variantFilters{FILTERNAME}}, $emergencyFiltersNames[$i];
+	}
+}
+
 my %taxaPloidy = ();
 open FH1,'<',"$controlArgs{PLOIDY}";
 while (<FH1>)
