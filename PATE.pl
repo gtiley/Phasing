@@ -36,7 +36,7 @@ die "/*--------INPUT PARAMETERS--------*/\n
 	
 \n/*--------NOTES--------*/\n
 This scripts automates a lot of the genotyping and phasing process, but has to be ran twice.
-The first time use --runmode serial OR --runmode cluster depending on if you are running everything serially on a local machine or distributing on a cluster.
+The first time use --runmode serial OR --runmode cluster depending on if you are running everything serially on a local machine or distributing on a cluster. The second time you will use --runmode alleles to create the phased fasta files.
 All steps assume a single processor is used or allocated. This takes about 30 minutes for a sample of >100x but <1000x coverage. If you want to change these options you may have to alter the appropriate lines relevant to BWA and GATK.
 We have yet to explore effects of different hard filtering strategies through GATK, this might require fine-tuning for low (e.g. <=15x) or very high (>1000x) depth data. Some reasonable defaults are set in the control file.";
 
@@ -119,7 +119,7 @@ while (<FH1>)
     if (/FASTA_OUT\s+\=\s+(\S+)/)
     {
 		$controlArgs{FASTA_OUT} = $1;
-		if ($passedArgs{runmode} ne "alleles")
+		if ($passedArgs{runmode} eq "alleles")
 		{
 			system "mkdir $controlArgs{FASTA_OUT}";
 			system "mkdir $controlArgs{FASTA_OUT}/PHASED";
