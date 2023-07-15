@@ -25,8 +25,10 @@ Please cite and credit the authors of all of the important bits that are glued t
 * GATK (McKenna at al. 2012)
 * HPoPG (Xie et al. 2016)
 
-## Experimental feature
+## Some notes on ploidy estimation
 It is possible to estimate ploidy directly for the distributions of ratios with reads that carry the reference or alternate allele (Weiß et al. 2018; Viruel 2019). This is achieved by the --runmode ```estPloidy``` option and specifying an appropriate reference in the control file. All individuals are genotyped as a diploid and mixture models (Tiley et al. 2018) are used to determine the ploidy. I am skeptical that enough information is available in target enrichment data to achieve this task and an outgroup that can successfully polarize the alternate alleles are needed. Nevertheless, the option exists and may have value for some cases.
+
+I have used the ploidy estimation feature for Tiley et al. (2023). The results did not seem unreasonable and mostly aligned with a prior analysis of the study system, but I still have reservations about model overfitting. I have recently generated ome RADseq data for the study system with some technical replicates of individuals with known ploidy. It might take time to evalutate results and fine-tune existing models, but I am happy to collaborate with others that have similar empirical test cases on the topic.
 
 ## Important Note - this is under active development, it works but we have several things planned in the near future
 1. Imputation
@@ -144,6 +146,10 @@ There are several technical issues compounded in the existing pipeline and I vie
 First, the genotyping problem in polyploids has a lot of uncertainty and I recommend reading Gerard et al. (2018) to better appreciate the problems. Comparisons of genotypers are needed in the future, but we do our best to filter out errors from the final set of variants.
 Second, there has apparently been a flurry of phasing algorithms developed for polyploids in the recent years after my colleagues and I began working on this pipeline and our ideas. I will try to investigate and compare some of them (e.g. Moeinzadeh et al. 2020) in the future.
 
+# What happens when an entire locus is not phased?
+It is possible that two variants can be called in a locus but there is not sufficient read information, either due to quality or depth, to phase those variants with respect to the reference sequence. It can also depend on the library preparation. For example, if probes are designed across multiple exons of locus but the reads to not span the entire intron on some individuals. Who knows - it could also mean that the reference sequence is not appropriate, perhaps a chimera of homeologos sequences? In such cases regarless of the cause, we opt to retain the phased variants from the longest block while variants on the shorter block(s) are replaced by missing data (N). This is our least-worst strategy for keeping information while avoiding artificial recombination or generating loci of multiple ploidy levels (i.e. I do not think using the ambiguity codes here is a good idea). The number of loci where this happens from the target enrichment data I have evaluated is very low, but paying attention to the AVG_NBLOCKS summary statistic can help identify individuals with phasing difficulties.
+
+
 
 # References
 * Crowl AA, Fritsch PW, Tiley GP, Lynch NP, Ranney TG, Ashrafi H, Manos PS. 2022. A First Complete Phylogenomic Hypothesis for Diploid Blueberries (Vaccinium section Cyanococcus). American Journal of Botany. In press.
@@ -156,5 +162,6 @@ Second, there has apparently been a flurry of phasing algorithms developed for p
 * Schrinner SD, Mari RS, Ebler J, Rautiainen M, Seillier L, Reimer JJ, Usadel B, Marschall T. 2020. Haplotype threading: an accurate polyploid phasing from long reads. Genome Biol. 21:252.
 * Tiley GP, Barker MS, Burleigh JG. 2018. Assessing the Performance of *Ks* Plots for Detecting Ancient Whole Genome Duplications. Genome Biology and Evolution 10:2882-2898.
 * Tiley GP, Crowl AA, Manos PS, Sessa EB, Solís-Lemus C, Yoder AD, Burleigh JG. 2021. Phasing alleles improves network inference with allopolyploids. bioRxiv doi: https://doi.org/10.1101/2021.05.04.442457
+* Tiley GP, Crowl AA, Almary TOM, Luke WRQ, Solofondranohatra CL, Besnard G, Lehmann CER, Yoder AD, Vorontsova MS. 2023. Genetic variation in *Loudetia simplex* supports the presence of ancient grasslands in Madagascar. bioRxiv doi: https://doi.org/10.1101/2023.04.07.536094
 * Viruel J, Conejero M, Hidalgo O, Pokorny L, Powell RF, Forest F, Kantar MB, Soto Gomez M, Graham SW, Gravendeel B, Wilkin P, Leitch IJ. 2019. A Target Capture-Based Method to Estimate Ploidy from Herbarium Specimens. Front. Plant Sci. 10:937.
 * Weiß CL, Pais M, Cano LM, Kamoun S, Burbano HA. 2018. nQuire: a statistical framework for ploidy estimation using next generation sequencing. BMC Bioinformatics 19:122.
