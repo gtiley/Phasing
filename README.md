@@ -120,7 +120,7 @@ There is a file called template.sh to help distribute jobs on a cluster
 * The template file must always be provided as an argument, even if using runmode ```serial``` or ```alleles```
 * The template file can be renamed if you like
 
-# Explanation of Summary Statistics
+## Explanation of Summary Statistics
 An output after runmode=2 is ```averagePhasingStats.txt```, which contains a few numbers aggregated over all loci. Here is a description of each column.
 1. INDIVIDUAL - individual ID
 2. NLOCI - number of loci assembled by hybpiper
@@ -139,12 +139,12 @@ An output after runmode=2 is ```averagePhasingStats.txt```, which contains a few
 	+ 5       .
 	+ 6 - number of loci with six phased alleles (six was the max in Dryopteris. If you have higher ploidies, this will automatically go higher because it is based off of the ploidy file. If you have octoploids for example, this will then go to 8)
 
-## Some notes on ploidy estimation
+# Some notes on ploidy estimation
 It is possible to estimate ploidy directly for the distributions of ratios with reads that carry the reference or alternate allele (Weiß et al. 2018; Viruel 2019). This is achieved by the --runmode ```estPloidy``` option and specifying an appropriate reference in the control file. All individuals are genotyped as a diploid and mixture models (Tiley et al. 2018) are used to determine the ploidy. I am skeptical that enough information is available in target enrichment data to achieve this task and an outgroup that can successfully polarize the alternate alleles are needed. Nevertheless, the option exists and may have value for some cases.
 
 I have used the ploidy estimation feature for Tiley et al. (2023). The results did not seem unreasonable and mostly aligned with a prior analysis of the study system, but I still have reservations about model overfitting. I have recently generated ome RADseq data for the study system with some technical replicates of individuals with known ploidy. It might take time to evalutate results and fine-tune existing models, but I am happy to collaborate with others that have similar empirical test cases on the topic.
 
-### Using estPloidy
+## Using estPloidy
 Ploidy is dependent on some additional code for fitting the mixture models. Rather than repackage it here, it is available through another repo. Although cloning repos within repos is typically not recommened, it is the fastest way here. Make sure you are in the `helperScripts` directory first:
 ```
 cd Phasing/helperScripts
