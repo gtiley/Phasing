@@ -16,3 +16,4 @@ module load bwa/0.7.17
 module load gatk/4.1.4.0
 module load samtools/1.10
 module load bamtools/2.1.1
+modele load R

@@ -34,17 +34,6 @@ Please cite and credit the authors of all of the important bits that are glued t
 * GATK (McKenna at al. 2012)
 * HPoPG (Xie et al. 2016)
 
-## Some notes on ploidy estimation
-It is possible to estimate ploidy directly for the distributions of ratios with reads that carry the reference or alternate allele (Weiß et al. 2018; Viruel 2019). This is achieved by the --runmode ```estPloidy``` option and specifying an appropriate reference in the control file. All individuals are genotyped as a diploid and mixture models (Tiley et al. 2018) are used to determine the ploidy. I am skeptical that enough information is available in target enrichment data to achieve this task and an outgroup that can successfully polarize the alternate alleles are needed. Nevertheless, the option exists and may have value for some cases.
-
-I have used the ploidy estimation feature for Tiley et al. (2023). The results did not seem unreasonable and mostly aligned with a prior analysis of the study system, but I still have reservations about model overfitting. I have recently generated ome RADseq data for the study system with some technical replicates of individuals with known ploidy. It might take time to evalutate results and fine-tune existing models, but I am happy to collaborate with others that have similar empirical test cases on the topic.
-
-## Important Note - this is under active development, it works but we have several things planned in the near future
-1. Imputation
-2. SFS estimation
-2. Parent assignment
-3. Determining allo vs. autopolyploidy
-
 ## Explanation of the control file options
 ### There are several input and output folders and files to keep track of
 * PHASING_ROOT = the root directory that you clone or download from github
@@ -150,6 +139,17 @@ An output after runmode=2 is ```averagePhasingStats.txt```, which contains a few
 	+ 5       .
 	+ 6 - number of loci with six phased alleles (six was the max in Dryopteris. If you have higher ploidies, this will automatically go higher because it is based off of the ploidy file. If you have octoploids for example, this will then go to 8)
 
+## Some notes on ploidy estimation
+It is possible to estimate ploidy directly for the distributions of ratios with reads that carry the reference or alternate allele (Weiß et al. 2018; Viruel 2019). This is achieved by the --runmode ```estPloidy``` option and specifying an appropriate reference in the control file. All individuals are genotyped as a diploid and mixture models (Tiley et al. 2018) are used to determine the ploidy. I am skeptical that enough information is available in target enrichment data to achieve this task and an outgroup that can successfully polarize the alternate alleles are needed. Nevertheless, the option exists and may have value for some cases.
+
+I have used the ploidy estimation feature for Tiley et al. (2023). The results did not seem unreasonable and mostly aligned with a prior analysis of the study system, but I still have reservations about model overfitting. I have recently generated ome RADseq data for the study system with some technical replicates of individuals with known ploidy. It might take time to evalutate results and fine-tune existing models, but I am happy to collaborate with others that have similar empirical test cases on the topic.
+
+### Using estPloidy
+Ploidy is dependent on some additional code for fitting the mixture models. Rather than repackage it here, it is available through another repo. Although cloning repos within repos is typically not recommened, it is the fastest way here. Make sure you are in the `helperScripts` directory first:
+```
+cd Phasing/helperScripts
+git clone https://github.com/gtiley/Ks_plots
+
 # Opinions
 There are several technical issues compounded in the existing pipeline and I view this as a starting point for enabling some interesting analyses of polyploid complexes. 
 First, the genotyping problem in polyploids has a lot of uncertainty and I recommend reading Gerard et al. (2018) to better appreciate the problems. Comparisons of genotypers are needed in the future, but we do our best to filter out errors from the final set of variants.
@@ -158,7 +158,11 @@ Second, there has apparently been a flurry of phasing algorithms developed for p
 # What happens when an entire locus is not phased?
 It is possible that two variants can be called in a locus but there is not sufficient read information, either due to quality or depth, to phase those variants with respect to the reference sequence. It can also depend on the library preparation. For example, if probes are designed across multiple exons of locus but the reads to not span the entire intron on some individuals. Who knows - it could also mean that the reference sequence is not appropriate, perhaps a chimera of homeologos sequences? In such cases regarless of the cause, we opt to retain the phased variants from the longest block while variants on the shorter block(s) are replaced by missing data (N). This is our least-worst strategy for keeping information while avoiding artificial recombination or generating loci of multiple ploidy levels (i.e. I do not think using the ambiguity codes here is a good idea). The number of loci where this happens from the target enrichment data I have evaluated is very low, but paying attention to the AVG_NBLOCKS summary statistic can help identify individuals with phasing difficulties.
 
-
+# Active development - some features that are planned in the near future
+1. Imputation
+2. SFS estimation
+3. Parent assignment
+4. Determining allo vs. autopolyploidy
 
 # References
 * Crowl AA, Fritsch PW, Tiley GP, Lynch NP, Ranney TG, Ashrafi H, Manos PS. 2022. A First Complete Phylogenomic Hypothesis for Diploid Blueberries (Vaccinium section Cyanococcus). American Journal of Botany. In press.
