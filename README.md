@@ -1,3 +1,12 @@
+# What is Phased Alleles from Target Enrichment data (PATÉ)?
+
+![Generalized PATÉ Workflow](./images/PATE.png)
+
+PATÉ is a pipeline for recovering phased haplotype sequences from short-read data. The phased sequences depend on user-provided hapltype consensus or reference sequences, which could come from many applications but some recommendations are provided in our publications (Tiley et al. 2021; Crowl et al. 2022; Tiley et al. 2023). PATÉ has two primary pipelines: **species** and **populations**. The details are provided further down, but here are general differnces.
+* Species - Each individual is genotyped against its own haplotype consensus sequences. This is appropriate when analyzing multiple individuals of moderate to high sequence divergence where using a single reference would potentially lead to short-read alignment errors (e.g. species). This could be appropriate for most phylogenetic systematic studies.
+* Populations - Each individual is genotyped against the same reference. This is appropriate when their are many individuals equidistant to the reference where there is low sequence divergence so as not to confound joint genotyping. This could be appropriate for the analysis of multiple populations of a single species or cases of incipient speciation. Within the **populations** pipeline is a way to estimate the ploidy level for each individual, but the authors remain skeptical about such tests (see details).
+
+
 # Using the script
 ## Try this to see options:
 ```perl PATE.pl```
