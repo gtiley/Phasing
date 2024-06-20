@@ -149,7 +149,7 @@ Ploidy is dependent on some additional code for fitting the mixture models. Rath
 ```
 cd Phasing/helperScripts
 git clone https://github.com/gtiley/Ks_plots
-
+```
 # Opinions
 There are several technical issues compounded in the existing pipeline and I view this as a starting point for enabling some interesting analyses of polyploid complexes. 
 First, the genotyping problem in polyploids has a lot of uncertainty and I recommend reading Gerard et al. (2018) to better appreciate the problems. Comparisons of genotypers are needed in the future, but we do our best to filter out errors from the final set of variants.
